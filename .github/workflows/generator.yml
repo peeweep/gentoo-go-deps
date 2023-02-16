@@ -44,7 +44,7 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git tag --delete ${P} || echo yes
-          git tag ${P} -m "${P}-deps.tar.xz"
+          git tag ${P} -m "${P}-deps.tar.xz ${P}-vendor.tar.xz"
 
       - name: Generate deps.tar.xz
         env:
@@ -53,6 +53,9 @@ jobs:
           cd input
           GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
           tar --create --auto-compress --file /tmp/${P}-deps.tar.xz go-mod
+          rm -rf go-mod
+          go mod vendor
+          tar --create --auto-compress --file /tmp/${P}-vendor.tar.xz vendor
 
       - name: push tag
         uses: ad-m/github-push-action@master
@@ -64,5 +67,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: /tmp/${{ inputs.P }}-deps.tar.xz
+          files: |
+            /tmp/${{ inputs.P }}-deps.tar.xz
+            /tmp/${{ inputs.P }}-vendor.tar.xz
           tag_name: ${{ inputs.P }}
