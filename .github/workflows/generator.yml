@@ -1,0 +1,68 @@
+name: "Generator"
+on:
+  workflow_dispatch:
+    inputs:
+      # https://github.com/MetaCubeX/Clash.Meta v1.14.1
+      # net-proxy/clash-meta/clash-meta-1.14.1.ebuild
+      # release artiface: ${PN}-${PV}-deps.tar.xz: clash-meta-1.14.1-deps.tar.xz
+      # release tag: ${P}=${PN}-${PV}: clash-meta-1.14.1
+      
+      REPO:
+        description: "github repo name: MetaCubeX/Clash.Meta"
+        required: true
+
+      TAG:
+        description: "github tag: v1.14.1"
+        required: true
+
+      P:
+        description: "P in ebuild: clash-meta-1.14.1"
+        required: true
+
+jobs:
+  Generator:
+    permissions: write-all # required by push tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Checkout input repo
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.REPO }}
+          ref: ${{ inputs.TAG }}
+          fetch-depth: 0
+          path: "input"
+
+      - name: create tag
+        env:
+          P: ${{ inputs.P }}
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git tag --delete ${P} || echo yes
+          git tag ${P} -m "${P}-deps.tar.xz"
+
+      - name: push tag
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force: true
+          tags: true
+
+      - name: Generate deps.tar.xz
+        env:
+          P: ${{ inputs.P }}
+        run: |
+          cd input
+          GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
+          tar --create --auto-compress --file /tmp/${P}-deps.tar.xz go-mod
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: /tmp/${{ inputs.P }}-deps.tar.xz
+          tag_name: ${{ inputs.P }}
