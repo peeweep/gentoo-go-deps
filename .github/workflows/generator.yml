@@ -46,13 +46,6 @@ jobs:
           git tag --delete ${P} || echo yes
           git tag ${P} -m "${P}-deps.tar.xz"
 
-      - name: push tag
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          force: true
-          tags: true
-
       - name: Generate deps.tar.xz
         env:
           P: ${{ inputs.P }}
@@ -60,6 +53,13 @@ jobs:
           cd input
           GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
           tar --create --auto-compress --file /tmp/${P}-deps.tar.xz go-mod
+
+      - name: push tag
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force: true
+          tags: true
 
       - name: Release
         uses: softprops/action-gh-release@v1
