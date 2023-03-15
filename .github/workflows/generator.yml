@@ -74,7 +74,7 @@ jobs:
         run: |
           git tag ${P} -m "${P}-node_modules.tar.xz"
           cd input
-          npm install --cache "${PWD}"/npm-cache
+          npm install --legacy-peer-deps --cache "${PWD}"/npm-cache
           tar --create --auto-compress --file /tmp/${P}-node_modules.tar.xz node_modules
           rm -rf node_modules
 
