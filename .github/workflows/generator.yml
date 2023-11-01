@@ -27,6 +27,10 @@ on:
         description: "P in ebuild: clash-meta-1.14.1"
         required: true
 
+      WORKDIR:
+        description: "(optional)source directory to perform scripts, default to empty string"
+        default: ''
+
 jobs:
   Generator:
     permissions: write-all # required by push tag
@@ -54,14 +58,20 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git tag --delete ${P} || echo yes
 
+      - name: update go version
+        if: inputs.LANG == 'golang'
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.21.0'
 
       - name: Generate golang deps
         if: inputs.LANG == 'golang'
         env:
           P: ${{ inputs.P }}
+          WORKDIR: ${{ inputs.WORKDIR }}
         run: |
           git tag ${P} -m "${P}-deps.tar.xz ${P}-vendor.tar.xz"
-          cd input
+          cd "input/${WORKDIR}"
           GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
           tar --create --auto-compress --file /tmp/${P}-deps.tar.xz go-mod
           rm -rf go-mod
@@ -72,9 +82,10 @@ jobs:
         if: inputs.LANG == 'javascript'
         env:
           P: ${{ inputs.P }}
+          WORKDIR: ${{ inputs.WORKDIR }}
         run: |
           git tag ${P} -m "${P}-node_modules.tar.xz"
-          cd input
+          cd "input/${WORKDIR}"
           npm install --legacy-peer-deps --cache "${PWD}"/npm-cache
           tar --create --auto-compress --file /tmp/${P}-node_modules.tar.xz node_modules
           rm -rf node_modules
@@ -89,9 +100,10 @@ jobs:
         if: inputs.LANG == 'javascript(pnpm)'
         env:
           P: ${{ inputs.P }}
+          WORKDIR: ${{ inputs.WORKDIR }}
         run: |
           git tag ${P} -m "${P}-node_modules-pnpm.tar.xz"
-          cd input
+          cd "input/${WORKDIR}"
           pnpm install
           tar --create --auto-compress --file /tmp/${P}-node_modules-pnpm.tar.xz node_modules
           rm -rf node_modules
