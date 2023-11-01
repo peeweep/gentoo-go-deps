@@ -28,9 +28,8 @@ on:
         required: true
 
       WORKDIR:
-        description: "source directory to preform scripts"
+        description: "(optional)source directory to perform scripts, default to empty string"
         default: ''
-        required: false
 
 jobs:
   Generator:
@@ -59,6 +58,11 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git tag --delete ${P} || echo yes
 
+      - name: update go version
+        if: inputs.LANG == 'golang'
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.21.0'
 
       - name: Generate golang deps
         if: inputs.LANG == 'golang'
