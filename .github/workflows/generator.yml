@@ -27,6 +27,11 @@ on:
         description: "P in ebuild: clash-meta-1.14.1"
         required: true
 
+      WORKDIR:
+        description: "source directory to preform scripts"
+        default: ''
+        required: false
+
 jobs:
   Generator:
     permissions: write-all # required by push tag
@@ -59,9 +64,10 @@ jobs:
         if: inputs.LANG == 'golang'
         env:
           P: ${{ inputs.P }}
+          WORKDIR: ${{ inputs.WORKDIR }}
         run: |
           git tag ${P} -m "${P}-deps.tar.xz ${P}-vendor.tar.xz"
-          cd input
+          cd "input/${WORKDIR}"
           GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
           tar --create --auto-compress --file /tmp/${P}-deps.tar.xz go-mod
           rm -rf go-mod
@@ -72,9 +78,10 @@ jobs:
         if: inputs.LANG == 'javascript'
         env:
           P: ${{ inputs.P }}
+          WORKDIR: ${{ inputs.WORKDIR }}
         run: |
           git tag ${P} -m "${P}-node_modules.tar.xz"
-          cd input
+          cd "input/${WORKDIR}"
           npm install --legacy-peer-deps --cache "${PWD}"/npm-cache
           tar --create --auto-compress --file /tmp/${P}-node_modules.tar.xz node_modules
           rm -rf node_modules
@@ -89,9 +96,10 @@ jobs:
         if: inputs.LANG == 'javascript(pnpm)'
         env:
           P: ${{ inputs.P }}
+          WORKDIR: ${{ inputs.WORKDIR }}
         run: |
           git tag ${P} -m "${P}-node_modules-pnpm.tar.xz"
-          cd input
+          cd "input/${WORKDIR}"
           pnpm install
           tar --create --auto-compress --file /tmp/${P}-node_modules-pnpm.tar.xz node_modules
           rm -rf node_modules
