@@ -92,9 +92,9 @@ jobs:
 
       - name: Setup pnpm
         if: inputs.LANG == 'javascript(pnpm)'
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
         with:
-          version: 6.0.2
+          version: latest
 
       - name: Generate javascript(pnpm) node_modules
         if: inputs.LANG == 'javascript(pnpm)'
