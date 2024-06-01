@@ -117,7 +117,7 @@ jobs:
 
       - name: upload goland deps to release artifaces
         if: inputs.LANG == 'golang'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             /tmp/${{ inputs.P }}-deps.tar.xz
@@ -126,7 +126,7 @@ jobs:
 
       - name: upload javascript deps to release artifaces
         if: inputs.LANG == 'javascript'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             /tmp/${{ inputs.P }}-node_modules.tar.xz
@@ -134,7 +134,7 @@ jobs:
 
       - name: upload javascript(pnpm) deps to release artifaces
         if: inputs.LANG == 'javascript(pnpm)'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             /tmp/${{ inputs.P }}-node_modules-pnpm.tar.xz
