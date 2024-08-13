@@ -74,9 +74,11 @@ jobs:
           cd "input/${WORKDIR}"
           GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
           tar --create --auto-compress --file /tmp/${P}-deps.tar.xz go-mod
-          rm -rf go-mod
-          go mod vendor
-          tar --create --auto-compress --file /tmp/${P}-vendor.tar.xz vendor
+          if [ !-f go.work ]; then
+            rm -rf go-mod
+            go mod vendor
+            tar --create --auto-compress --file /tmp/${P}-vendor.tar.xz vendor
+          fi
 
       - name: Generate javascript node_modules
         if: inputs.LANG == 'javascript'
