@@ -74,7 +74,7 @@ jobs:
           cd "input/${WORKDIR}"
           GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
           tar --create --auto-compress --file /tmp/${P}-deps.tar.xz go-mod
-          if [ !-f go.work ]; then
+          if [ ! -f go.work ]; then
             rm -rf go-mod
             go mod vendor
             tar --create --auto-compress --file /tmp/${P}-vendor.tar.xz vendor
