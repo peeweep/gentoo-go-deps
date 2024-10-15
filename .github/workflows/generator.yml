@@ -63,6 +63,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
+          cache: false
 
       - name: Generate golang deps
         if: inputs.LANG == 'golang'
