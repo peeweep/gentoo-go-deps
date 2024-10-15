@@ -77,8 +77,8 @@ jobs:
           tar --create --auto-compress --file /tmp/${P}-deps.tar.xz go-mod
           if [ ! -f go.work ]; then
             rm -rf go-mod
-            go mod vendor
-            tar --create --auto-compress --file /tmp/${P}-vendor.tar.xz vendor
+            go mod vendor -modcacherw -o ${P}/vendor
+            tar --create --auto-compress --file /tmp/${P}-vendor.tar.xz ${P}/vendor
           fi
 
       - name: Generate javascript node_modules
