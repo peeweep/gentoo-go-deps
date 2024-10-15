@@ -2,7 +2,7 @@ You can use this workflow generate gentoo deps tarball
 
 Support:
 
- - Golang: `${P}-deps.tar.xz` and `${P}-vendor.tar.xz`
+ - Golang: `${P}-deps.tar.xz`
  - Javascript: `${P}-node_modules.tar.xz`
 
 How to use this?

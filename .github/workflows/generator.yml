@@ -71,15 +71,10 @@ jobs:
           P: ${{ inputs.P }}
           WORKDIR: ${{ inputs.WORKDIR }}
         run: |
-          git tag ${P} -m "${P}-deps.tar.xz ${P}-vendor.tar.xz"
+          git tag ${P} -m "${P}-deps.tar.xz"
           cd "input/${WORKDIR}"
           GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
           tar --create --auto-compress --file /tmp/${P}-deps.tar.xz go-mod
-          if [ ! -f go.work ]; then
-            rm -rf go-mod
-            go mod vendor -modcacherw -o ${P}/vendor
-            tar --create --auto-compress --file /tmp/${P}-vendor.tar.xz ${P}/vendor
-          fi
 
       - name: Generate javascript node_modules
         if: inputs.LANG == 'javascript'
@@ -124,7 +119,6 @@ jobs:
         with:
           files: |
             /tmp/${{ inputs.P }}-deps.tar.xz
-            /tmp/${{ inputs.P }}-vendor.tar.xz
           tag_name: ${{ inputs.P }}
 
       - name: upload javascript deps to release artifaces
