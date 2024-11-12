@@ -2,10 +2,10 @@ name: "Generator"
 on:
   workflow_dispatch:
     inputs:
-      # https://github.com/MetaCubeX/Clash.Meta v1.14.1
-      # net-proxy/clash-meta/clash-meta-1.14.1.ebuild
-      # release artiface: ${PN}-${PV}-deps.tar.xz: clash-meta-1.14.1-deps.tar.xz
-      # release tag: ${P}=${PN}-${PV}: clash-meta-1.14.1
+      # https://github.com/XTLS/Xray-core v24.11.11
+      # net-proxy/Xray/Xray-24.11.11.ebuild
+      # release artiface: ${PN}-${PV}-deps.tar.xz: Xray-24.11.11-deps.tar.xz
+      # release tag: ${P}=${PN}-${PV}: Xray-24.11.11
 
       LANG:
         type: choice
@@ -16,23 +16,23 @@ on:
         - javascript(pnpm)
 
       REPO:
-        description: "github repo name: MetaCubeX/Clash.Meta"
+        description: "github repo name: XTLS/Xray-core"
         required: true
 
       TAG:
-        description: "github tag: v1.14.1"
+        description: "github tag: v24.11.11"
         required: true
 
       P:
-        description: "P in ebuild: clash-meta-1.14.1"
+        description: "P in ebuild: Xray-24.11.11"
         required: true
 
       WORKDIR:
-        description: "(optional)source directory to perform scripts, default to empty string"
+        description: "(optional) source directory to perform scripts, default to empty string"
         default: ''
 
       VENDORDIR:
-        description: "(optional)S in ebuild: ddns-go-6.7.6, disable default"
+        description: "(optional) generate vendor.tar.xz, input the S in ebuild here: Xray-core-24.11.11, disabled default"
         default: ''
 
 jobs:
@@ -80,10 +80,10 @@ jobs:
           cd "input/${WORKDIR}"
           GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
           tar --create --auto-compress --file /tmp/${P}-deps.tar.xz go-mod
-          if [[ ! -f go.work && x"${VENDORDIR}"" != x"" ]]; then
+          if [[ ! -f go.work && x"${VENDORDIR}" != x"" ]]; then
             rm -rf go-mod
             go mod vendor -modcacherw -o ${VENDORDIR}/vendor
-            tar --create --auto-compress --file /tmp/${VENDORDIR}-vendor.tar.xz ${VENDORDIR}/vendor
+            tar --create --auto-compress --file /tmp/${P}-vendor.tar.xz ${VENDORDIR}/vendor
           fi
 
       - name: Generate javascript node_modules
@@ -132,7 +132,7 @@ jobs:
           tag_name: ${{ inputs.P }}
 
       - name: upload golang vendor to release artifaces
-        if: inputs.VENDORDIR != ''
+        if: inputs.LANG == 'golang' && inputs.VENDORDIR != ''
         uses: softprops/action-gh-release@v2
         with:
           files: |
