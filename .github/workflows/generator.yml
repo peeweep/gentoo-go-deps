@@ -2,10 +2,10 @@ name: "Generator"
 on:
   workflow_dispatch:
     inputs:
-      # https://github.com/MetaCubeX/Clash.Meta v1.14.1
-      # net-proxy/clash-meta/clash-meta-1.14.1.ebuild
-      # release artiface: ${PN}-${PV}-deps.tar.xz: clash-meta-1.14.1-deps.tar.xz
-      # release tag: ${P}=${PN}-${PV}: clash-meta-1.14.1
+      # https://github.com/MetaCubeX/mihomo v1.18.10
+      # net-proxy/mihomo/mihomo-1.18.10.ebuild
+      # release artiface: ${PN}-${PV}-deps.tar.xz: mihomo-1.18.10-deps.tar.xz
+      # release tag: ${P}=${PN}-${PV}: mihomo-1.18.10
 
       LANG:
         type: choice
@@ -16,15 +16,15 @@ on:
         - javascript(pnpm)
 
       REPO:
-        description: "github repo name: MetaCubeX/Clash.Meta"
+        description: "github repo name: MetaCubeX/mihomo"
         required: true
 
       TAG:
-        description: "github tag: v1.14.1"
+        description: "github tag: v1.18.10"
         required: true
 
       P:
-        description: "P in ebuild: clash-meta-1.14.1"
+        description: "P in ebuild: mihomo-1.18.10"
         required: true
 
       WORKDIR:
@@ -32,7 +32,7 @@ on:
         default: ''
 
       VENDORDIR:
-        description: "(optional)S in ebuild: ddns-go-6.7.6, disabled default"
+        description: "(optional)S in ebuild: mihomo-1.18.10, disabled default"
         default: ''
 
 jobs:
