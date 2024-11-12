@@ -2,10 +2,10 @@ name: "Generator"
 on:
   workflow_dispatch:
     inputs:
-      # https://github.com/MetaCubeX/mihomo v1.18.10
-      # net-proxy/mihomo/mihomo-1.18.10.ebuild
-      # release artiface: ${PN}-${PV}-deps.tar.xz: mihomo-1.18.10-deps.tar.xz
-      # release tag: ${P}=${PN}-${PV}: mihomo-1.18.10
+      # https://github.com/XTLS/Xray-core v24.11.11
+      # net-proxy/Xray/Xray-24.11.11.ebuild
+      # release artiface: ${PN}-${PV}-deps.tar.xz: Xray-24.11.11-deps.tar.xz
+      # release tag: ${P}=${PN}-${PV}: Xray-24.11.11
 
       LANG:
         type: choice
@@ -16,15 +16,15 @@ on:
         - javascript(pnpm)
 
       REPO:
-        description: "github repo name: MetaCubeX/mihomo"
+        description: "github repo name: XTLS/Xray-core"
         required: true
 
       TAG:
-        description: "github tag: v1.18.10"
+        description: "github tag: v24.11.11"
         required: true
 
       P:
-        description: "P in ebuild: mihomo-1.18.10"
+        description: "P in ebuild: Xray-24.11.11"
         required: true
 
       WORKDIR:
@@ -32,7 +32,7 @@ on:
         default: ''
 
       VENDORDIR:
-        description: "(optional)S in ebuild: mihomo-1.18.10, disabled default"
+        description: "(optional)S in ebuild: Xray-core-24.11.11, disabled default"
         default: ''
 
 jobs:
@@ -83,7 +83,7 @@ jobs:
           if [[ ! -f go.work && x"${VENDORDIR}" != x"" ]]; then
             rm -rf go-mod
             go mod vendor -modcacherw -o ${VENDORDIR}/vendor
-            tar --create --auto-compress --file /tmp/${VENDORDIR}-vendor.tar.xz ${VENDORDIR}/vendor
+            tar --create --auto-compress --file /tmp/${P}-vendor.tar.xz ${VENDORDIR}/vendor
           fi
 
       - name: Generate javascript node_modules
@@ -132,7 +132,7 @@ jobs:
           tag_name: ${{ inputs.P }}
 
       - name: upload golang vendor to release artifaces
-        if: inputs.VENDORDIR != ''
+        if: inputs.LANG == 'golang' && inputs.VENDORDIR != ''
         uses: softprops/action-gh-release@v2
         with:
           files: |
