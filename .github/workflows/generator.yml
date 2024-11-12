@@ -32,7 +32,7 @@ on:
         default: ''
 
       VENDORDIR:
-        description: "(optional)S in ebuild: ddns-go-6.7.6, disable default"
+        description: "(optional)S in ebuild: ddns-go-6.7.6, disabled default"
         default: ''
 
 jobs:
@@ -80,7 +80,7 @@ jobs:
           cd "input/${WORKDIR}"
           GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
           tar --create --auto-compress --file /tmp/${P}-deps.tar.xz go-mod
-          if [[ ! -f go.work && x"${VENDORDIR}"" != x"" ]]; then
+          if [[ ! -f go.work && x"${VENDORDIR}" != x"" ]]; then
             rm -rf go-mod
             go mod vendor -modcacherw -o ${VENDORDIR}/vendor
             tar --create --auto-compress --file /tmp/${VENDORDIR}-vendor.tar.xz ${VENDORDIR}/vendor
