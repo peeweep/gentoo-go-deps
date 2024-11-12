@@ -31,6 +31,10 @@ on:
         description: "(optional)source directory to perform scripts, default to empty string"
         default: ''
 
+      VENDORDIR:
+        description: "(optional)S in ebuild: ddns-go-6.7.6, disable default"
+        default: ''
+
 jobs:
   Generator:
     permissions: write-all # required by push tag
@@ -70,15 +74,16 @@ jobs:
         env:
           P: ${{ inputs.P }}
           WORKDIR: ${{ inputs.WORKDIR }}
+          VENDORDIR: ${{ inputs.VENDORDIR }}
         run: |
           git tag ${P} -m "${P}-deps.tar.xz ${P}-vendor.tar.xz"
           cd "input/${WORKDIR}"
           GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
           tar --create --auto-compress --file /tmp/${P}-deps.tar.xz go-mod
-          if [ ! -f go.work ]; then
+          if [[ ! -f go.work && x"${VENDORDIR}"" != x"" ]]; then
             rm -rf go-mod
-            go mod vendor -modcacherw -o ${P}/vendor
-            tar --create --auto-compress --file /tmp/${P}-vendor.tar.xz ${P}/vendor
+            go mod vendor -modcacherw -o ${VENDORDIR}/vendor
+            tar --create --auto-compress --file /tmp/${VENDORDIR}-vendor.tar.xz ${VENDORDIR}/vendor
           fi
 
       - name: Generate javascript node_modules
@@ -118,12 +123,19 @@ jobs:
           force: true
           tags: true
 
-      - name: upload goland deps to release artifaces
+      - name: upload golang deps to release artifaces
         if: inputs.LANG == 'golang'
         uses: softprops/action-gh-release@v2
         with:
           files: |
             /tmp/${{ inputs.P }}-deps.tar.xz
+          tag_name: ${{ inputs.P }}
+
+      - name: upload golang vendor to release artifaces
+        if: inputs.VENDORDIR != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
             /tmp/${{ inputs.P }}-vendor.tar.xz
           tag_name: ${{ inputs.P }}
 
