@@ -14,6 +14,7 @@ on:
         - golang
         - javascript
         - javascript(pnpm)
+        - rust
 
       REPO:
         description: "github repo name: XTLS/Xray-core"
@@ -28,17 +29,20 @@ on:
         required: true
 
       WORKDIR:
-        description: "(optional) source directory to perform scripts, default to empty string"
+        description: "(optional) source directory to perform scripts"
         default: ''
 
       VENDORDIR:
-        description: "(optional) generate vendor.tar.xz, input the S in ebuild here: Xray-core-24.11.11, disabled default"
+        description: "(optional) golang vendor.tar.xz, input S in ebuild: Xray-core-24.11.11"
         default: ''
 
 jobs:
   Generator:
     permissions: write-all # required by push tag
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/peeweep/gentoo-testing:master
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,8 +62,9 @@ jobs:
           P: ${{ inputs.P }}
           LANG: ${{ inputs.LANG }}
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config --global --add safe.directory '*'
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
           git tag --delete ${P} || echo yes
 
       - name: update go version
@@ -116,6 +121,22 @@ jobs:
           tar --create --auto-compress --file /tmp/${P}-node_modules-pnpm.tar.xz node_modules
           rm -rf node_modules
 
+      - name: Setup rust
+        if: inputs.LANG == 'rust'
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          cache: false
+
+      - name: Generate rust crates
+        if: inputs.LANG == 'rust'
+        env:
+          P: ${{ inputs.P }}
+          WORKDIR: ${{ inputs.WORKDIR }}
+        run: |
+          git tag ${P} -m "${P}-crates.tar.xz"
+          cd "input/${WORKDIR}"
+          pycargoebuild -c
+
       - name: push tag
         uses: ad-m/github-push-action@master
         with:
@@ -139,7 +160,7 @@ jobs:
             /tmp/${{ inputs.P }}-vendor.tar.xz
           tag_name: ${{ inputs.P }}
 
-      - name: upload javascript deps to release artifaces
+      - name: upload javascript node_modules to release artifaces
         if: inputs.LANG == 'javascript'
         uses: softprops/action-gh-release@v2
         with:
@@ -147,10 +168,19 @@ jobs:
             /tmp/${{ inputs.P }}-node_modules.tar.xz
           tag_name: ${{ inputs.P }}
 
-      - name: upload javascript(pnpm) deps to release artifaces
+      - name: upload javascript(pnpm) node_modules to release artifaces
         if: inputs.LANG == 'javascript(pnpm)'
         uses: softprops/action-gh-release@v2
         with:
           files: |
             /tmp/${{ inputs.P }}-node_modules-pnpm.tar.xz
+          tag_name: ${{ inputs.P }}
+
+      - name: upload rust crates to release artifaces
+        if: inputs.LANG == 'rust'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            /var/cache/distfiles/${{ inputs.P }}-crates.tar.xz
+            input/${{ inputs.WORKDIR }}/${{ inputs.P }}.ebuild
           tag_name: ${{ inputs.P }}

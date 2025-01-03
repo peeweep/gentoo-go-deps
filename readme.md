@@ -4,6 +4,7 @@ Support:
 
  - Golang: `${P}-deps.tar.xz` and `${P}-vendor.tar.xz`
  - Javascript: `${P}-node_modules.tar.xz`
+ - rust: `${P}-crates.tar.xz`
 
 How to use this?
 
