@@ -91,6 +91,12 @@ jobs:
             tar --create --auto-compress --file /tmp/${P}-vendor.tar.xz ${VENDORDIR}/vendor
           fi
 
+      - name: Setup npm
+        if: inputs.LANG == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: latest
+
       - name: Generate javascript node_modules
         if: inputs.LANG == 'javascript'
         env:
