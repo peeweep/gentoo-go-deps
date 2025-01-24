@@ -40,8 +40,6 @@ jobs:
   Generator:
     permissions: write-all # required by push tag
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/peeweep/gentoo-testing:master
 
     steps:
       - name: Checkout
@@ -91,12 +89,6 @@ jobs:
             tar --create --auto-compress --file /tmp/${P}-vendor.tar.xz ${VENDORDIR}/vendor
           fi
 
-      - name: Setup npm
-        if: inputs.LANG == 'javascript'
-        uses: actions/setup-node@v4
-        with:
-          node-version: latest
-
       - name: Generate javascript node_modules
         if: inputs.LANG == 'javascript'
         env:
@@ -127,12 +119,6 @@ jobs:
           tar --create --auto-compress --file /tmp/${P}-node_modules-pnpm.tar.xz node_modules
           rm -rf node_modules
 
-      - name: Setup rust
-        if: inputs.LANG == 'rust'
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          cache: false
-
       - name: Generate rust crates
         if: inputs.LANG == 'rust'
         env:
@@ -140,8 +126,10 @@ jobs:
           WORKDIR: ${{ inputs.WORKDIR }}
         run: |
           git tag ${P} -m "${P}-crates.tar.xz"
+          pip install pycargoebuild
+          wget https://raw.githubusercontent.com/gentoo/gentoo/refs/heads/master/metadata/license-mapping.conf -O /tmp/license-mapping.conf
           cd "input/${WORKDIR}"
-          pycargoebuild -c
+          pycargoebuild --crate-tarball --distdir /tmp/ --license-mapping /tmp/license-mapping.conf
 
       - name: push tag
         uses: ad-m/github-push-action@master
@@ -187,6 +175,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            /var/cache/distfiles/${{ inputs.P }}-crates.tar.xz
+            /tmp/${{ inputs.P }}-crates.tar.xz
             input/${{ inputs.WORKDIR }}/${{ inputs.P }}.ebuild
           tag_name: ${{ inputs.P }}
